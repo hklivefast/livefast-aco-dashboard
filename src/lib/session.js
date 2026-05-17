@@ -1,52 +1,72 @@
-import { SignJWT, jwtVerify } from "jose";
+import { serialize, parse } from "cookie";
+import crypto from "crypto";
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-const COOKIE_NAME = "lf_session";
+const SESSION_SECRET = process.env.SESSION_SECRET || "dev-secret-change-me";
+const SESSION_NAME = "lf_session";
 
-export async function createSessionToken(user) {
-  const token = await new SignJWT({
-    id: user.id,
-    username: user.username,
-    avatar: user.avatar,
-    verified: true,
-  })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("7d")
-    .sign(secret);
+// Simple encrypted session stored in HTTP-only cookie
+export function createSessionToken(data) {
+  const payload = JSON.stringify({
+    ...data,
+    exp: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
 
-  return token;
+  const iv = crypto.randomBytes(16);
+  const key = crypto.scryptSync(SESSION_SECRET, "salt", 32);
+  const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
+  let encrypted = cipher.update(payload, "utf8", "hex");
+  encrypted += cipher.final("hex");
+
+  return iv.toString("hex") + ":" + encrypted;
 }
 
-export async function verifySession(token) {
+export function parseSessionToken(token) {
   try {
-    const { payload } = await jwtVerify(token, secret);
-    return payload;
+    const [ivHex, encrypted] = token.split(":");
+    const iv = Buffer.from(ivHex, "hex");
+    const key = crypto.scryptSync(SESSION_SECRET, "salt", 32);
+    const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
+    let decrypted = decipher.update(encrypted, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+
+    const data = JSON.parse(decrypted);
+    if (data.exp < Date.now()) return null; // Expired
+    return data;
   } catch {
     return null;
   }
 }
 
-export function setSessionCookie(res, token) {
+export function setSessionCookie(res, data) {
+  const token = createSessionToken(data);
   res.setHeader(
     "Set-Cookie",
-    `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 7}${
-      process.env.NODE_ENV === "production" ? "; Secure" : ""
-    }`
+    serialize(SESSION_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    })
   );
+}
+
+export function getSession(req) {
+  const cookies = parse(req.headers.cookie || "");
+  const token = cookies[SESSION_NAME];
+  if (!token) return null;
+  return parseSessionToken(token);
 }
 
 export function clearSessionCookie(res) {
   res.setHeader(
     "Set-Cookie",
-    `${COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${
-      process.env.NODE_ENV === "production" ? "; Secure" : ""
-    }`
+    serialize(SESSION_NAME, "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0,
+    })
   );
-}
-
-export function getSessionCookie(req) {
-  const cookies = req.headers.cookie || "";
-  const match = cookies.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
-  return match ? match[1] : null;
 }

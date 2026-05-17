@@ -1,12 +1,20 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Server-side client with service role key (full access)
-export function getSupabase() {
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error("Supabase environment variables not configured");
-  }
-  return createClient(supabaseUrl, supabaseServiceKey);
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn("Supabase env vars missing. Some features will be unavailable.");
+}
+
+export const supabase = createClient(
+  supabaseUrl || "https://placeholder.supabase.co",
+  supabaseAnonKey || "placeholder"
+);
+
+// Server-side client with service role key (for API routes only)
+export function getServiceSupabase() {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
+  return createClient(supabaseUrl, serviceKey);
 }

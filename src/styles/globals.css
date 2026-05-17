@@ -1,137 +1,65 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-*, *::before, *::after {
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
-html, body {
-  background: #050505;
-  color: #e8e8e8;
-  min-height: 100vh;
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
 }
 
-::selection {
-  background: rgba(200,200,200,0.25);
-  color: #fff;
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #333; }
-
-input::placeholder, textarea::placeholder {
-  color: #4a4a4a;
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
 }
 
-@keyframes shimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-12px); }
-  to { opacity: 1; transform: translateY(0); }
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease both;
 }
 
-@keyframes ticker {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+.animate-fadeUp {
+  animation: fadeUp 0.8s ease both;
 }
 
-/* ═══ Mobile Responsive ═══ */
-
-/* Sidebar: auto-collapse on small screens */
-@media (max-width: 768px) {
-  aside {
-    width: 64px !important;
-  }
-  main {
-    margin-left: 64px !important;
-    padding: 16px !important;
-  }
+.animate-scaleIn {
+  animation: scaleIn 0.25s ease both;
 }
 
-/* Hero banners: stack grid columns */
-@media (max-width: 900px) {
-  main > div > div > div[style*="gridTemplateColumns: \"1.4fr"] {
-    grid-template-columns: 1fr 1fr !important;
-  }
+.animate-spin {
+  animation: spin 0.8s linear infinite;
 }
-@media (max-width: 600px) {
-  main > div > div > div[style*="gridTemplateColumns"] {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* Stat cards: 4 cols -> 2 cols -> 1 col */
-@media (max-width: 900px) {
-  div[style*="repeat(4, 1fr)"] {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
-@media (max-width: 500px) {
-  div[style*="repeat(4, 1fr)"],
-  div[style*="repeat(2, 1fr)"] {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* Hero banner padding on mobile */
-@media (max-width: 600px) {
-  div[style*="heroGrad"],
-  div[style*="135deg"] {
-    padding: 20px 16px !important;
-  }
-  /* Big hero numbers smaller on mobile */
-  p[style*="fontSize: 48"],
-  p[style*="fontSize: 40"] {
-    font-size: 32px !important;
-  }
-}
-
-/* Tables: horizontal scroll already handled via overflowX: auto */
-
-/* Landing page: stack features grid */
-@media (max-width: 768px) {
-  .nav-desk { display: none !important; }
-}
-@media (min-width: 769px) {
-  .nav-mob { display: none !important; }
-}
-
-/* Time range filter: scroll on very small */
-@media (max-width: 400px) {
-  div[style*="DM Mono"] {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* Tracking cards: wrap content */
-@media (max-width: 600px) {
-  div[style*="flex: \"1 1 220px\""] {
-    flex: 1 1 100% !important;
-  }
-}
-
-/* Page title sizing */
-@media (max-width: 500px) {
-  h1[style*="fontSize: 32"] {
-    font-size: 24px !important;
-  }
-}
-
-button:active { transform: scale(0.98); }
-a:hover, button:hover { filter: brightness(1.05); }

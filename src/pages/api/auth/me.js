@@ -1,24 +1,19 @@
-import { getSessionCookie, verifySession } from "@/lib/session";
+import { getSession } from "../../lib/session";
 
-export default async function handler(req, res) {
-  const token = getSessionCookie(req);
-
-  if (!token) {
-    return res.json({ user: null });
-  }
-
-  const session = await verifySession(token);
-
+export default function handler(req, res) {
+  const session = getSession(req);
   if (!session) {
-    return res.json({ user: null });
+    return res.status(401).json({ authenticated: false });
   }
-
-  return res.json({
+  return res.status(200).json({
+    authenticated: true,
     user: {
-      id: session.id,
+      userId: session.userId,
+      discordId: session.discordId,
       username: session.username,
       avatar: session.avatar,
-      verified: session.verified,
+      email: session.email,
+      isAdmin: session.isAdmin,
     },
   });
 }

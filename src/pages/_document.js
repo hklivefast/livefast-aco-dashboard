@@ -1,17 +1,18 @@
-import { Html, Head, Main, NextScript } from "next/document";
+import NextDocument, { Html, Head, Main, NextScript } from "next/document";
 
-export default function Document() {
-  return (
-    <Html lang="en">
-      <Head>
-        <meta name="description" content="LIVEFAST ACO - Automated checkout operations for collectibles. Target, Walmart, Pokemon Center." />
-        <meta name="theme-color" content="#050505" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <body>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  );
+export default class Document extends NextDocument {
+  render() {
+    return (
+      <Html lang="en">
+        <Head>
+          <meta name="description" content="LIVEFAST ACO - Automated Checkout Services for Pokemon TCG, sports cards, and collectibles" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    );
+  }
 }
